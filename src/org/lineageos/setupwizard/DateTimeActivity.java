@@ -83,9 +83,18 @@ public class DateTimeActivity extends BaseSetupWizardActivity implements
                 spinner.setSelection(tzIndex);
             }
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                // Without the current timezone in the list the spinner sits on the first
+                // entry, and reports it as selected as soon as the listener is attached.
+                // That is not the user's choice; keep the timezone until they make one.
+                private boolean mIgnoreInitialSelection = tzIndex == -1;
+
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position,
                         long id) {
+                    if (mIgnoreInitialSelection) {
+                        mIgnoreInitialSelection = false;
+                        return;
+                    }
                     final Map<?, ?> map = (Map<?, ?>) adapterView.getItemAtPosition(position);
                     final String tzId = (String) map.get(KEY_ID);
                     if (mCurrentTimeZone != null && !mCurrentTimeZone.getID().equals(tzId)) {
